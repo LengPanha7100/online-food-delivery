@@ -1,0 +1,36 @@
+services:
+  online-food-delivery-postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: online-food-delivery_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+    volumes:
+      - online-food-delivery-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+    networks:
+      - online-food-delivery-network
+
+  online-food-delivery-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "9091:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://online-food-delivery-postgres:5432/online-food-delivery_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345
+    depends_on:
+      - online-food-delivery-postgres
+    networks:
+      - online-food-delivery-network
+
+volumes:
+  online-food-delivery-postgres-data:
+networks:
+  online-food-delivery-network:
+    driver: bridge
